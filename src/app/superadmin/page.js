@@ -2,6 +2,7 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import MakeAdminButton from "@/components/MakeAdminButton"
+import ChangeUserPasswordForm from "@/components/ChangeUserPasswordForm"
 
 export default async function SuperAdminDashboard() {
     const session = await auth()
@@ -39,11 +40,14 @@ export default async function SuperAdminDashboard() {
                                         Rol actual: <span className="highlight">{user.role}</span>
                                     </div>
                                 </div>
-                                {user.role === "CONSUMER" ? (
-                                    <MakeAdminButton userId={user.id} />
-                                ) : (
-                                    <button className="btn-outline" disabled>Ya es Administrador</button>
-                                )}
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', alignItems: 'flex-end' }}>
+                                    {user.role === "CONSUMER" ? (
+                                        <MakeAdminButton userId={user.id} />
+                                    ) : (
+                                        <button className="btn-outline" style={{ fontSize: '0.8rem', padding: '0.4rem 0.8rem' }} disabled>Ya es Administrador</button>
+                                    )}
+                                    <ChangeUserPasswordForm userId={user.id} userName={user.name} />
+                                </div>
                             </div>
                         ))}
                     </div>
