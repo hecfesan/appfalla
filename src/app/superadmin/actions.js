@@ -19,3 +19,23 @@ export async function makeAdmin(userId) {
     revalidatePath("/superadmin")
     return { success: true }
 }
+
+export async function changeUserPassword(userId, newPassword) {
+    const session = await auth()
+    if (!session || session.user.role !== "SUPER_ADMIN") {
+        throw new Error("No autorizado")
+    }
+
+    if (!newPassword || newPassword.length < 4) {
+        throw new Error("La contraseña debe tener al menos 4 caracteres")
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
+
+    await prisma.user.update({
+        where: { id: userId },
+        data: { password: hashedPassword }
+    })
+
+    return { success: true }
+}
