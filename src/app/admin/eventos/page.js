@@ -2,6 +2,7 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import Link from "next/link"
+import DeleteEventButton from "./DeleteEventButton"
 
 export default async function AdminEventsDashboard() {
     const session = await auth()
@@ -47,10 +48,11 @@ export default async function AdminEventsDashboard() {
                                             📅 {event.date.toLocaleDateString("es-ES", { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                                         </div>
                                     </div>
-                                    <div style={{ textAlign: 'right' }}>
+                                    <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center' }}>
                                         <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#8B5CF6' }}>
                                             {event._count.subscriptions} <span style={{ fontSize: '0.8rem', fontWeight: 'normal', color: 'var(--text-muted)' }}>apunt.</span>
                                         </div>
+                                        <DeleteEventButton eventId={event.id} eventTitle={event.title} />
                                     </div>
                                 </div>
                             </Link>
