@@ -28,9 +28,14 @@ export default async function AdminMealsDashboard() {
                     <h1 style={{ fontSize: '1.5rem', marginBottom: '0.25rem' }}>Gestión de Comidas</h1>
                     <p className="text-muted" style={{ fontSize: '0.9rem' }}>Controla las asistencias y recaudación.</p>
                 </div>
-                <Link href="/admin/comidas/crear" className="btn-primary" style={{ backgroundColor: '#10B981', borderColor: '#10B981', padding: '0.6rem 1rem', fontSize: '0.9rem' }}>
-                    + Alta
-                </Link>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    <Link href="/admin/comidas/resumen" className="btn-secondary" style={{ padding: '0.6rem 1rem', fontSize: '0.9rem' }}>
+                        📋 Resumen Global
+                    </Link>
+                    <Link href="/admin/comidas/crear" className="btn-primary" style={{ backgroundColor: '#10B981', borderColor: '#10B981', padding: '0.6rem 1rem', fontSize: '0.9rem' }}>
+                        + Alta
+                    </Link>
+                </div>
             </header>
 
             <section className="admin-section" style={{ marginTop: '2rem' }}>

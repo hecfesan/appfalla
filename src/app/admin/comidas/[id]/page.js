@@ -2,6 +2,7 @@ import { auth } from "@/auth"
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import Link from "next/link"
+import PrintButton from "@/components/PrintButton"
 
 export default async function AdminMealDetails({ params }) {
     const session = await auth()
@@ -36,9 +37,19 @@ export default async function AdminMealDetails({ params }) {
 
     return (
         <main className="dashboard">
-            <Link href="/admin/comidas" className="nav-link" style={{ display: 'inline-block', marginBottom: '1rem', padding: '0.5rem 0', color: '#10B981' }}>
-                &larr; Volver a Gestión de Comidas
-            </Link>
+            <style>{`
+                @media print {
+                    .print-hide { display: none !important; }
+                    .dashboard { padding: 0 !important; max-width: 100% !important; }
+                    .order-card { break-inside: avoid; border: 1px solid #ccc !important; box-shadow: none !important; }
+                }
+            `}</style>
+            <div className="print-hide" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <Link href="/admin/comidas" className="nav-link" style={{ padding: '0.5rem 0', color: '#10B981' }}>
+                    &larr; Volver a Gestión de Comidas
+                </Link>
+                <PrintButton />
+            </div>
             <header className="dashboard-header">
                 <h1>{meal.dishName}</h1>
                 <p className="text-muted" style={{ marginTop: '0.5rem' }}>{dateStr} a las {timeStr} | Menú {meal.type === 'ADULT' ? 'Adulto' : 'Niño'}</p>

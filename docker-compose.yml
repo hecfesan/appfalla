@@ -1,0 +1,14 @@
+services:
+  appfalla:
+    build: .
+    container_name: appfalla-container
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/app/data
+    env_file:
+      - .env
+    restart: always
+
+# El volumen ./data mapea la carpeta local 'data' del servidor 
+# con la base de datos dentro del contenedor para que no se pierdan los datos.

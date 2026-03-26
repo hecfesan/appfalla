@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.DS_Store
+*.pem
+npm-debug.log*
+
+# Ignoramos la base de datos local para no sobreescribir datos en producción
+dev.db
+dev.db-journal
+*.sqlite
+*.sqlite3
