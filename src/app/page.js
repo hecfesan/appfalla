@@ -10,6 +10,10 @@ export default async function Home() {
     redirect("/login")
   }
 
+  if (!session.user.isApproved) {
+    redirect("/waiting-approval")
+  }
+
   const user = await prisma.user.findUnique({
     where: { id: session.user.id }
   })

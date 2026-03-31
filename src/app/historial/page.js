@@ -15,6 +15,7 @@ function getStatusBadge(status) {
 export default async function HistorialPage() {
     const session = await auth()
     if (!session) redirect("/login")
+    if (!session.user.isApproved) redirect("/waiting-approval")
 
     const userId = session.user.id
 

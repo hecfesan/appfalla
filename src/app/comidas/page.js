@@ -7,6 +7,7 @@ import MealToggleCard from "./MealToggleCard"
 export default async function ConsumerMeals() {
     const session = await auth()
     if (!session) redirect("/login")
+    if (!session.user.isApproved) redirect("/waiting-approval")
 
     const today = new Date()
     today.setHours(0, 0, 0, 0)

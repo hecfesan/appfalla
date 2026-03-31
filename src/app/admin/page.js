@@ -45,6 +45,11 @@ export default async function AdminMenu() {
                     <h2>Gestión de Eventos</h2>
                     <p>Crea eventos y controla la lista de asistentes falleros.</p>
                 </Link>
+                <Link href="/admin/usuarios" className="hub-card" style={{ borderColor: '#6B7280' }}>
+                    <div className="hub-icon" style={{ color: '#6B7280' }}>👤</div>
+                    <h2>Admisión de Usuarios</h2>
+                    <p>Acepta o rechaza solicitudes de nuevos registros.</p>
+                </Link>
             </div>
         </main>
     )

@@ -18,6 +18,7 @@ model User {
   password     String
   tokenBalance Int      @default(0)
   role         String   @default("CONSUMER") // CONSUMER, ADMIN, SUPER_ADMIN
+  isApproved   Boolean  @default(false)
   orders       Order[]
   redemptions  Redemption[]
   mealSubscriptions MealSubscription[]

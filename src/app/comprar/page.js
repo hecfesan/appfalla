@@ -7,6 +7,7 @@ export default async function ComprarPage() {
     const session = await auth()
 
     if (!session) redirect("/login")
+    if (!session.user.isApproved) redirect("/waiting-approval")
 
     return (
         <main className="dashboard">

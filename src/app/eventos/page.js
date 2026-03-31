@@ -9,6 +9,7 @@ import EventToggleCard from "./EventToggleCard"
 export default async function ConsumerEvents() {
     const session = await auth()
     if (!session) redirect("/login")
+    if (!session.user.isApproved) redirect("/waiting-approval")
 
     const userId = session.user.id
 

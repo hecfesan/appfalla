@@ -8,6 +8,7 @@ export default async function UsarPage() {
     const session = await auth()
 
     if (!session) redirect("/login")
+    if (!session.user.isApproved) redirect("/waiting-approval")
 
     const user = await prisma.user.findUnique({
         where: { id: session.user.id }

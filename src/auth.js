@@ -38,6 +38,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                     username: user.username,
                     name: user.name,
                     role: user.role,
+                    isApproved: user.isApproved,
                 }
             }
         })
@@ -48,6 +49,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 token.id = user.id
                 token.role = user.role
                 token.username = user.username
+                token.isApproved = user.isApproved
             }
             return token
         },
@@ -56,6 +58,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 session.user.id = token.id
                 session.user.role = token.role
                 session.user.username = token.username
+                session.user.isApproved = token.isApproved
             }
             return session
         }
