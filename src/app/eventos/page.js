@@ -17,6 +17,9 @@ export default async function ConsumerEvents() {
         where: {
             date: { gte: new Date() }
         },
+        include: {
+            meals: true
+        },
         orderBy: { date: "asc" }
     })
 
@@ -24,6 +27,11 @@ export default async function ConsumerEvents() {
         where: { userId }
     })
     const mySubscribedEventIds = new Set(mySubscriptions.map(s => s.eventId))
+
+    const myMealSubscriptions = await prisma.mealSubscription.findMany({
+        where: { userId },
+        include: { meal: true }
+    })
 
     return (
         <main className="dashboard">
@@ -51,6 +59,7 @@ export default async function ConsumerEvents() {
                                 key={event.id}
                                 event={event}
                                 initiallyEnrolled={mySubscribedEventIds.has(event.id)}
+                                initialMealSubs={myMealSubscriptions.filter(ms => ms.meal.eventId === event.id)}
                             />
                         ))}
                     </div>

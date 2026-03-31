@@ -3,21 +3,53 @@
 import { useState } from "react"
 import { toggleEventSubscription } from "./actions"
 
-export default function EventToggleCard({ event, initiallyEnrolled }) {
+export default function EventToggleCard({ event, initiallyEnrolled, initialMealSubs = [] }) {
     const [isEnrolled, setIsEnrolled] = useState(initiallyEnrolled)
     const [loading, setLoading] = useState(false)
+    
+    // Initialize meal counts from existing subs or defaults
+    const [mealSelections, setMealSelections] = useState(
+        event.meals.map(meal => {
+            const existing = initialMealSubs.find(s => s.mealId === meal.id)
+            return {
+                mealId: meal.id,
+                dishName: meal.dishName,
+                adultCount: existing ? existing.adultCount : 0,
+                childCount: existing ? existing.childCount : 0,
+                selected: !!existing
+            }
+        })
+    )
 
     const handleToggle = async () => {
         setLoading(true)
         try {
-            await toggleEventSubscription(event.id, isEnrolled)
+            const data = {
+                eventId: event.id,
+                isEnrolled: isEnrolled,
+                meals: mealSelections.filter(m => m.selected).map(m => ({
+                    mealId: m.mealId,
+                    adultCount: m.adultCount,
+                    childCount: m.childCount
+                }))
+            }
+            await toggleEventSubscription(data)
             setIsEnrolled(!isEnrolled)
         } catch (error) {
             console.error("Failed to toggle subscription", error)
-            alert("No se pudo actualizar tu estado. Intenta de nuevo.")
+            alert(error.message || "No se pudo actualizar tu estado. Intenta de nuevo.")
         } finally {
             setLoading(false)
         }
+    }
+
+    const updateMeal = (idx, field, val) => {
+        const newMeals = [...mealSelections]
+        newMeals[idx][field] = val
+        if (field === 'adultCount' || field === 'childCount') {
+            if (val > 0) newMeals[idx].selected = true
+        }
+        setMealSelections(newMeals)
     }
 
     const eventDate = new Date(event.date)
@@ -53,9 +85,59 @@ export default function EventToggleCard({ event, initiallyEnrolled }) {
                     </div>
                 )}
                 {event.description && (
-                    <p style={{ marginTop: '0.8rem', marginBottom: '0', fontSize: '0.95rem', color: 'var(--text)' }}>{event.description}</p>
+                    <p style={{ marginTop: '0.8rem', marginBottom: '1rem', fontSize: '0.95rem', color: 'var(--text)' }}>{event.description}</p>
                 )}
             </div>
+
+            {/* Meals Section */}
+            {event.meals && event.meals.length > 0 && (
+                <div style={{ backgroundColor: 'rgba(139, 92, 246, 0.05)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
+                    <h4 style={{ fontSize: '0.95rem', marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        🍴 ¿Te quedas a comer?
+                    </h4>
+                    {mealSelections.map((meal, idx) => (
+                        <div key={meal.mealId} style={{ marginBottom: idx < mealSelections.length - 1 ? '1rem' : 0 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                                <input 
+                                    type="checkbox" 
+                                    checked={meal.selected} 
+                                    disabled={isLocked}
+                                    onChange={(e) => updateMeal(idx, 'selected', e.target.checked)}
+                                    id={`meal-${meal.mealId}`}
+                                />
+                                <label htmlFor={`meal-${meal.mealId}`} style={{ fontWeight: '500', fontSize: '0.9rem' }}>{meal.dishName}</label>
+                            </div>
+                            
+                            {meal.selected && (
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', paddingLeft: '1.5rem' }}>
+                                    <div>
+                                        <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Adultos</label>
+                                        <input 
+                                            type="number" 
+                                            min="0" 
+                                            value={meal.adultCount} 
+                                            disabled={isLocked}
+                                            onChange={(e) => updateMeal(idx, 'adultCount', parseInt(e.target.value) || 0)}
+                                            style={{ width: '100%', padding: '0.4rem', borderRadius: '6px', border: '1px solid var(--border)' }}
+                                        />
+                                    </div>
+                                    <div>
+                                        <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Niños</label>
+                                        <input 
+                                            type="number" 
+                                            min="0" 
+                                            value={meal.childCount} 
+                                            disabled={isLocked}
+                                            onChange={(e) => updateMeal(idx, 'childCount', parseInt(e.target.value) || 0)}
+                                            style={{ width: '100%', padding: '0.4rem', borderRadius: '6px', border: '1px solid var(--border)' }}
+                                        />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
+            )}
 
             {isLocked && (
                 <div style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', color: '#EF4444', padding: '0.75rem', borderRadius: '8px', fontSize: '0.85rem', textAlign: 'center' }}>
@@ -78,7 +160,7 @@ export default function EventToggleCard({ event, initiallyEnrolled }) {
                     cursor: (loading || isLocked) ? 'not-allowed' : 'pointer'
                 }}
             >
-                {loading ? "Actualizando..." : (isEnrolled ? "Desapuntarse" : "¡Me Apunto!")}
+                {loading ? "Actualizando..." : (isEnrolled ? "Modificar / Desapuntarse" : "Confirmar Asistencia")}
             </button>
         </div>
     )

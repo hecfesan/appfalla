@@ -24,7 +24,14 @@ export default async function HistorialPage() {
         prisma.order.findMany({ where: { userId } }),
         prisma.redemption.findMany({ where: { userId } }),
         prisma.tokenAdjustment.findMany({ where: { userId } }),
-        prisma.mealSubscription.findMany({ where: { userId }, include: { meal: true } }),
+        prisma.mealSubscription.findMany({ 
+            where: { userId }, 
+            include: { 
+                meal: {
+                    include: { event: true }
+                } 
+            } 
+        }),
         prisma.eventSubscription.findMany({ where: { userId }, include: { event: true } })
     ])
 
@@ -57,10 +64,10 @@ export default async function HistorialPage() {
         ...mealSubs.map(m => ({
             ...m,
             eventType: 'COMIDA',
-            title: '🥘 Apuntado a Comida',
-            amountText: m.meal.dishName,
+            title: `🥘 Comida: ${m.meal.dishName}`,
+            amountText: `${m.adultCount} A / ${m.childCount} N`,
             color: '#10B981',
-            statusNode: <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>Precio: {m.meal.price.toFixed(2)} €</span>
+            statusNode: <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>Evento: {m.meal.event.title}</span>
         })),
         ...eventSubs.map(e => ({
             ...e,

@@ -18,6 +18,13 @@ export default async function AdminEventDetails({ params }) {
             subscriptions: {
                 include: { user: true },
                 orderBy: { createdAt: "asc" }
+            },
+            meals: {
+                include: {
+                    subscriptions: {
+                        include: { user: true }
+                    }
+                }
             }
         }
     })
@@ -63,11 +70,28 @@ export default async function AdminEventDetails({ params }) {
                     </div>
                 )}
 
-                <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
-                    <div className="balance-card" style={{ flex: 1, borderColor: '#8B5CF6' }}>
-                        <h2 style={{ fontSize: "1rem", color: "var(--text-muted)", marginBottom: "0.5rem" }}>Total Apuntados</h2>
-                        <div className="balance-amount" style={{ color: '#8B5CF6' }}>{attendeesCount}</div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginTop: '1.5rem' }}>
+                    <div className="balance-card" style={{ backgroundColor: 'var(--surface)', borderColor: '#8B5CF6' }}>
+                        <h2 style={{ fontSize: "0.85rem", color: "var(--text-muted)", marginBottom: "0.4rem" }}>Total Inscritos</h2>
+                        <div className="balance-amount" style={{ color: '#8B5CF6', fontSize: '1.8rem' }}>{attendeesCount}</div>
                     </div>
+                    {event.meals.map(meal => {
+                        const adultTotal = meal.subscriptions.reduce((acc, s) => acc + s.adultCount, 0)
+                        const childTotal = meal.subscriptions.reduce((acc, s) => acc + s.childCount, 0)
+                        return (
+                            <div key={meal.id} className="balance-card" style={{ backgroundColor: 'rgba(16, 185, 129, 0.05)', borderColor: '#10B981' }}>
+                                <h2 style={{ fontSize: "0.85rem", color: "#065F46", marginBottom: "0.4rem" }}>{meal.dishName}</h2>
+                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'baseline' }}>
+                                    <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#047857' }}>
+                                        {adultTotal + childTotal}
+                                    </div>
+                                    <div style={{ fontSize: '0.8rem', color: '#065F46' }}>
+                                        ({adultTotal} A / {childTotal} N)
+                                    </div>
+                                </div>
+                            </div>
+                        )
+                    })}
                 </div>
             </header>
 

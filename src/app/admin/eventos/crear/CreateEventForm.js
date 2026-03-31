@@ -27,8 +27,21 @@ export default function CreateEventForm() {
 
         const dateISO = new Date(`${date}T${time}`).toISOString()
 
+        const formData = new FormData(e.currentTarget)
+        const meals = []
+        for (let i = 1; i <= 2; i++) {
+            const name = formData.get(`meal${i}_name`)
+            if (name && name.trim()) {
+                meals.push({
+                    dishName: name.trim(),
+                    adultPrice: parseFloat(formData.get(`meal${i}_adultPrice`)) || 0,
+                    childPrice: parseFloat(formData.get(`meal${i}_childPrice`)) || 0
+                })
+            }
+        }
+
         try {
-            await createEventAction(title, dateISO, description, location)
+            await createEventAction(title, dateISO, description, location, meals)
             router.push("/admin/eventos")
         } catch (err) {
             setError(err.message)
@@ -101,6 +114,53 @@ export default function CreateEventForm() {
                     style={{ textAlign: 'left', padding: '0.8rem', minHeight: '80px', resize: 'vertical' }}
                 />
             </div>
+
+            <hr style={{ margin: '2rem 0', borderColor: 'var(--border)', opacity: 0.3 }} />
+            
+            <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem', color: 'var(--primary)' }}>🍴 Comidas Asociadas</h3>
+            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
+                Puedes añadir hasta 2 comidas a este evento (ej. Paella y Merienda).
+            </p>
+
+            {[1, 2].map((num) => (
+                <div key={num} style={{ backgroundColor: 'var(--card-bg)', padding: '1rem', borderRadius: '12px', marginBottom: '1rem', border: '1px solid var(--border)' }}>
+                    <h4 style={{ marginBottom: '1rem', fontSize: '1rem' }}>Comida {num}</h4>
+                    <div className="input-group">
+                        <label>Nombre del plato</label>
+                        <input
+                            type="text"
+                            name={`meal${num}_name`}
+                            placeholder="Ej. Paella Valenciana"
+                            className="preset-btn manual"
+                            style={{ textAlign: 'left', padding: '0.8rem' }}
+                        />
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+                        <div className="input-group">
+                            <label>Precio Adulto (€)</label>
+                            <input
+                                type="number"
+                                name={`meal${num}_adultPrice`}
+                                step="0.5"
+                                defaultValue="0"
+                                className="preset-btn manual"
+                                style={{ textAlign: 'left', padding: '0.8rem' }}
+                            />
+                        </div>
+                        <div className="input-group">
+                            <label>Precio Niño (€)</label>
+                            <input
+                                type="number"
+                                name={`meal${num}_childPrice`}
+                                step="0.5"
+                                defaultValue="0"
+                                className="preset-btn manual"
+                                style={{ textAlign: 'left', padding: '0.8rem' }}
+                            />
+                        </div>
+                    </div>
+                </div>
+            ))}
 
             <button type="submit" disabled={loading} className="btn-primary" style={{ backgroundColor: '#8B5CF6', borderColor: '#8B5CF6', marginTop: '1.5rem', width: '100%' }}>
                 {loading ? 'Creando...' : 'Dar de alta evento'}

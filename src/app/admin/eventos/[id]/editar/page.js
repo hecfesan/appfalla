@@ -14,7 +14,8 @@ export default async function EditEventPage({ params }) {
     const { id } = paramValues
 
     const event = await prisma.event.findUnique({
-        where: { id }
+        where: { id },
+        include: { meals: true }
     })
 
     if (!event) {
