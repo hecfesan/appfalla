@@ -1,12 +1,13 @@
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { NextResponse } from "next/server"
+import { sendWelcomeEmail } from "@/lib/mail"
 
 export async function POST(req) {
     try {
-        const { username, name, password } = await req.json()
+        const { username, name, email, password } = await req.json()
 
-        if (!username || !name || !password) {
+        if (!username || !name || !email || !password) {
             return NextResponse.json({ error: "Missing fields" }, { status: 400 })
         }
 
@@ -26,10 +27,14 @@ export async function POST(req) {
             data: {
                 name,
                 username,
+                email,
                 password: hashedPassword,
                 numericId: nextNumericId
             }
         })
+
+        // Send welcome email (non-blocking)
+        sendWelcomeEmail(email, name, username).catch(console.error)
 
         return NextResponse.json({ message: "Usuario registrado con éxito", user }, { status: 201 })
     } catch (error) {
