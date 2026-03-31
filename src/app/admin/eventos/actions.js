@@ -30,6 +30,34 @@ export async function createEventAction(title, dateISO, description, location) {
     return { success: true }
 }
 
+export async function updateEventAction(id, title, dateISO, description, location) {
+    const session = await auth()
+    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN")) {
+        throw new Error("No autorizado")
+    }
+
+    if (!id || !title || !dateISO) {
+        throw new Error("El ID, título y fecha son obligatorios.")
+    }
+
+    await prisma.event.update({
+        where: { id },
+        data: {
+            title,
+            date: new Date(dateISO),
+            description: description || null,
+            location: location || null
+        }
+    })
+
+    revalidatePath("/admin/eventos")
+    revalidatePath(`/admin/eventos/${id}`)
+    revalidatePath("/eventos")
+    revalidatePath("/")
+
+    return { success: true }
+}
+
 export async function deleteEventAction(id) {
     const session = await auth()
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUPER_ADMIN")) {
@@ -40,9 +68,6 @@ export async function deleteEventAction(id) {
         throw new Error("El ID del evento es obligatorio.")
     }
 
-    // Delete subscriptions first (Prisma takes care if defined in schema, but good to be sure or check if needed)
-    // Actually EventSubscription has @@unique([userId, eventId]) and depends on Event.
-    
     await prisma.event.delete({
         where: { id }
     })

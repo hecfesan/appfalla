@@ -2,14 +2,19 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { createEventAction } from "../actions"
+import { updateEventAction } from "../../actions"
 
-export default function CreateEventForm() {
-    const [title, setTitle] = useState("")
-    const [date, setDate] = useState("")
-    const [time, setTime] = useState("")
-    const [description, setDescription] = useState("")
-    const [location, setLocation] = useState("")
+export default function EditEventForm({ event }) {
+    // Current event data
+    const eventDate = new Date(event.date)
+    const initialDate = eventDate.toISOString().split('T')[0]
+    const initialTime = eventDate.toTimeString().split(' ')[0].substring(0, 5)
+
+    const [title, setTitle] = useState(event.title || "")
+    const [date, setDate] = useState(initialDate)
+    const [time, setTime] = useState(initialTime)
+    const [description, setDescription] = useState(event.description || "")
+    const [location, setLocation] = useState(event.location || "")
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState("")
     const router = useRouter()
@@ -28,8 +33,11 @@ export default function CreateEventForm() {
         const dateISO = new Date(`${date}T${time}`).toISOString()
 
         try {
-            await createEventAction(title, dateISO, description, location)
-            router.push("/admin/eventos")
+            const result = await updateEventAction(event.id, title, dateISO, description, location)
+            if (result.success) {
+                router.push(`/admin/eventos/${event.id}`)
+                router.refresh()
+            }
         } catch (err) {
             setError(err.message)
         } finally {
@@ -102,9 +110,24 @@ export default function CreateEventForm() {
                 />
             </div>
 
-            <button type="submit" disabled={loading} className="btn-primary" style={{ backgroundColor: '#8B5CF6', borderColor: '#8B5CF6', marginTop: '1.5rem', width: '100%' }}>
-                {loading ? 'Creando...' : 'Dar de alta evento'}
-            </button>
+            <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem' }}>
+                <button 
+                    type="button" 
+                    onClick={() => router.back()} 
+                    className="btn-secondary" 
+                    style={{ flex: 1 }}
+                >
+                    Cancelar
+                </button>
+                <button 
+                    type="submit" 
+                    disabled={loading} 
+                    className="btn-primary" 
+                    style={{ backgroundColor: '#8B5CF6', borderColor: '#8B5CF6', flex: 2 }}
+                >
+                    {loading ? 'Guardando...' : 'Guardar Cambios'}
+                </button>
+            </div>
         </form>
     )
 }

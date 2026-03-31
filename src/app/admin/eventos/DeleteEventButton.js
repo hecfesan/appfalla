@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { deleteEventAction } from "./crear/actions"
+import { deleteEventAction } from "./actions"
 
 export default function DeleteEventButton({ eventId, eventTitle }) {
     const [loading, setLoading] = useState(false)

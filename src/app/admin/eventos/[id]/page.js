@@ -52,6 +52,9 @@ export default async function AdminEventDetails({ params }) {
                             </p>
                         )}
                     </div>
+                    <Link href={`/admin/eventos/${id}/editar`} className="btn-secondary" style={{ padding: '0.6rem 1rem', fontSize: '0.9rem' }}>
+                        ✏️ Editar
+                    </Link>
                 </div>
 
                 {event.description && (
