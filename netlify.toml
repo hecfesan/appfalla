@@ -1,5 +1,5 @@
 [build]
-  command = "npx prisma generate && next build"
+  command = "npx prisma generate && npx prisma db push && node prisma/seed.js && next build"
   publish = ".next"
 
 [[plugins]]
