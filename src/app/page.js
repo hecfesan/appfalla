@@ -10,13 +10,18 @@ export default async function Home() {
     redirect("/login")
   }
 
-  if (!session.user.isApproved) {
+  const isLocalAdminName = session.user.name === "Super Admin Local"
+  if (!session.user.isApproved && session.user.role === "CONSUMER" && !isLocalAdminName) {
     redirect("/waiting-approval")
   }
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id }
   })
+
+  if (!user) {
+    redirect("/login")
+  }
 
   // Get user pending orders for notification
   const pendingOrders = await prisma.order.count({
@@ -28,6 +33,13 @@ export default async function Home() {
     where: { date: { gte: new Date() } },
     orderBy: { date: "asc" }
   })
+
+  // Get user's subscription status to the next event
+  const userSubscriptions = nextEvent ? await prisma.eventSubscription.findMany({
+    where: { userId: user.id }
+  }) : []
+  
+  const isSubscribedToNext = nextEvent && userSubscriptions.some(s => s.eventId === nextEvent.id)
 
   return (
     <main className="dashboard">
@@ -55,8 +67,12 @@ export default async function Home() {
           <h3 style={{ fontSize: '1.1rem', marginBottom: '0.8rem', color: 'var(--text)' }}>Próximo Evento Destacado</h3>
           <Link href="/eventos" style={{ textDecoration: 'none' }}>
             <div style={{
-              background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0.05) 100%)',
-              border: '1px solid rgba(139, 92, 246, 0.4)',
+              background: isSubscribedToNext 
+                ? 'linear-gradient(135deg, rgba(34, 197, 94, 0.15) 0%, rgba(34, 197, 94, 0.05) 100%)'
+                : 'linear-gradient(135deg, rgba(139, 92, 246, 0.15) 0%, rgba(139, 92, 246, 0.05) 100%)',
+              border: isSubscribedToNext
+                ? '1px solid rgba(34, 197, 94, 0.4)'
+                : '1px solid rgba(139, 92, 246, 0.4)',
               borderRadius: '16px',
               padding: '1.25rem',
               display: 'flex',
@@ -65,7 +81,22 @@ export default async function Home() {
               overflow: 'hidden'
             }}>
               <div style={{ position: 'absolute', top: '-10px', right: '-10px', fontSize: '4rem', opacity: 0.1 }}>📅</div>
-              <h4 style={{ margin: '0 0 0.25rem 0', color: '#8B5CF6', fontSize: '1.25rem', position: 'relative', zIndex: 1 }}>{nextEvent.title}</h4>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', zIndex: 1 }}>
+                <h4 style={{ margin: '0 0 0.25rem 0', color: isSubscribedToNext ? '#16a34a' : '#8B5CF6', fontSize: '1.25rem' }}>{nextEvent.title}</h4>
+                {isSubscribedToNext && (
+                  <span style={{ 
+                    backgroundColor: '#16a34a', 
+                    color: 'white', 
+                    padding: '0.2rem 0.6rem', 
+                    borderRadius: '20px', 
+                    fontSize: '0.75rem', 
+                    fontWeight: 'bold',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                  }}>
+                    ¡ESTÁS APUNTADO!
+                  </span>
+                )}
+              </div>
               <p style={{ margin: '0 0 0.5rem 0', color: 'var(--text-muted)', fontSize: '0.9rem', position: 'relative', zIndex: 1 }}>
                 {nextEvent.date.toLocaleDateString("es-ES", { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
               </p>
@@ -74,8 +105,8 @@ export default async function Home() {
                   📍 {nextEvent.location}
                 </p>
               )}
-              <div style={{ marginTop: '1rem', color: '#8B5CF6', fontWeight: 'bold', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                Ver Detalles &rarr;
+              <div style={{ marginTop: '1rem', color: isSubscribedToNext ? '#16a34a' : '#8B5CF6', fontWeight: 'bold', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                {isSubscribedToNext ? 'Ver Detalles o Modificar' : 'Ver Detalles'} &rarr;
               </div>
             </div>
           </Link>
@@ -97,11 +128,6 @@ export default async function Home() {
           <div className="hub-icon" style={{ color: 'var(--primary)' }}>🕒</div>
           <h2>Mi Historial</h2>
           <p>Revisa tus compras de tokens y consumiciones pasadas.</p>
-        </Link>
-        <Link href="/comidas" className="hub-card" style={{ borderColor: '#10B981' }}>
-          <div className="hub-icon" style={{ color: '#10B981' }}>🥘</div>
-          <h2>Comidas</h2>
-          <p>Apúntate a las próximas paellas y raciones de la falla.</p>
         </Link>
         <Link href="/eventos" className="hub-card" style={{ borderColor: '#8B5CF6' }}>
           <div className="hub-icon" style={{ color: '#8B5CF6' }}>📅</div>

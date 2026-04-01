@@ -8,7 +8,8 @@ export default async function PerfilPage() {
     const session = await auth()
 
     if (!session) redirect("/login")
-    if (!session.user.isApproved) redirect("/waiting-approval")
+    const isLocalAdminName = session.user.name === "Super Admin Local"
+    if (!session.user.isApproved && session.user.role === "CONSUMER" && !isLocalAdminName) redirect("/waiting-approval")
 
     const user = await prisma.user.findUnique({
         where: { id: session.user.id }

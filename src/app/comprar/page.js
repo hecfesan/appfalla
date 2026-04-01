@@ -7,7 +7,8 @@ export default async function ComprarPage() {
     const session = await auth()
 
     if (!session) redirect("/login")
-    if (!session.user.isApproved) redirect("/waiting-approval")
+    const isLocalAdminName = session.user.name === "Super Admin Local"
+    if (!session.user.isApproved && session.user.role === "CONSUMER" && !isLocalAdminName) redirect("/waiting-approval")
 
     return (
         <main className="dashboard">

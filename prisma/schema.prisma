@@ -9,22 +9,23 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+
 model User {
-  id           String   @id @default(cuid())
-  numericId    Int?     @unique
-  username     String   @unique
-  email        String?  @unique
-  name         String
-  password     String
-  tokenBalance Int      @default(0)
-  role         String   @default("CONSUMER") // CONSUMER, ADMIN, SUPER_ADMIN
-  isApproved   Boolean  @default(false)
-  orders       Order[]
-  redemptions  Redemption[]
-  mealSubscriptions MealSubscription[]
-  tokenAdjustments TokenAdjustment[]
+  id                 String              @id @default(cuid())
+  numericId          Int?                @unique
+  username           String              @unique
+  email              String?             @unique
+  name               String
+  password           String
+  tokenBalance       Int                 @default(0)
+  role               String              @default("CONSUMER")
+  isApproved         Boolean             @default(false)
+  createdAt          DateTime            @default(now())
   eventSubscriptions EventSubscription[]
-  createdAt    DateTime @default(now())
+  mealSubscriptions  MealSubscription[]
+  orders             Order[]
+  redemptions        Redemption[]
+  tokenAdjustments   TokenAdjustment[]
 }
 
 model PasswordResetToken {
@@ -39,71 +40,68 @@ model PasswordResetToken {
 model Order {
   id            String   @id @default(cuid())
   userId        String
-  user          User     @relation(fields: [userId], references: [id])
   tokensAmount  Int
-  paymentMethod String   // CASH, ONLINE
-  status        String   @default("PENDING") // PENDING, VALIDATED
+  paymentMethod String
+  status        String   @default("PENDING")
   createdAt     DateTime @default(now())
+  user          User     @relation(fields: [userId], references: [id])
 }
 
 model Redemption {
-  id            String   @id @default(cuid())
-  userId        String
-  user          User     @relation(fields: [userId], references: [id])
-  tokensAmount  Int
-  status        String   @default("PENDING") // PENDING, VALIDATED, REJECTED
-  createdAt     DateTime @default(now())
+  id           String   @id @default(cuid())
+  userId       String
+  tokensAmount Int
+  status       String   @default("PENDING")
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id])
 }
 
 model Dish {
-  id    String @id @default(cuid())
-  name  String @unique
+  id   String @id @default(cuid())
+  name String @unique
 }
 
 model Meal {
-  id          String   @id @default(cuid())
-  dishName    String
-  date        DateTime
-  adultPrice  Float    @default(0)
-  childPrice  Float    @default(0)
-  eventId     String
-  event       Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
-  createdAt   DateTime @default(now())
-
+  id            String             @id @default(cuid())
+  dishName      String
+  date          DateTime
+  adultPrice    Float              @default(0)
+  childPrice    Float              @default(0)
+  eventId       String
+  createdAt     DateTime           @default(now())
+  event         Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
   subscriptions MealSubscription[]
 }
 
 model MealSubscription {
-  id          String   @id @default(cuid())
-  userId      String
-  mealId      String
-  adultCount  Int      @default(1)
-  childCount  Int      @default(0)
-  createdAt   DateTime @default(now())
-
-  user        User     @relation(fields: [userId], references: [id])
-  meal        Meal     @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  id         String   @id @default(cuid())
+  userId     String
+  mealId     String
+  adultCount Int      @default(1)
+  childCount Int      @default(0)
+  createdAt  DateTime @default(now())
+  meal       Meal     @relation(fields: [mealId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, mealId])
 }
 
 model TokenAdjustment {
-  id           String   @id @default(cuid())
-  userId       String
-  user         User     @relation(fields: [userId], references: [id])
-  adminId      String?  
-  amount       Int
-  createdAt    DateTime @default(now())
+  id        String   @id @default(cuid())
+  userId    String
+  adminId   String?
+  amount    Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Event {
-  id          String   @id @default(cuid())
-  title       String
-  description String?
-  location    String?
-  date        DateTime
-  createdAt   DateTime @default(now())
-
+  id            String              @id @default(cuid())
+  title         String
+  description   String?
+  location      String?
+  date          DateTime
+  createdAt     DateTime            @default(now())
   subscriptions EventSubscription[]
   meals         Meal[]
 }
@@ -113,9 +111,8 @@ model EventSubscription {
   userId    String
   eventId   String
   createdAt DateTime @default(now())
-
-  user      User     @relation(fields: [userId], references: [id])
   event     Event    @relation(fields: [eventId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, eventId])
 }

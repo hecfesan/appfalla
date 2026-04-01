@@ -7,11 +7,11 @@ export default function UserApprovalControls({ userId }) {
     const [loading, setLoading] = useState(false)
 
     const handleApprove = async () => {
-        if (!confirm("¿Deseas activar el acceso para este usuario?")) return
         setLoading(true)
         try {
             await approveUserAction(userId)
         } catch (error) {
+            console.error("Error al aprobar usuario:", error)
             alert("Error al aprobar usuario")
         } finally {
             setLoading(false)
@@ -19,11 +19,11 @@ export default function UserApprovalControls({ userId }) {
     }
 
     const handleReject = async () => {
-        if (!confirm("¿Deseas rechazar y eliminar esta solicitud de registro?")) return
         setLoading(true)
         try {
             await rejectUserAction(userId)
         } catch (error) {
+            console.error("Error al rechazar usuario:", error)
             alert("Error al rechazar usuario")
         } finally {
             setLoading(false)

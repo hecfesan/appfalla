@@ -52,6 +52,13 @@ export default function EventToggleCard({ event, initiallyEnrolled, initialMealS
         setMealSelections(newMeals)
     }
 
+    const totalPrice = mealSelections
+        .filter(m => m.selected)
+        .reduce((acc, m) => {
+            const mealData = event.meals.find(em => em.id === m.mealId)
+            return acc + (m.adultCount * (mealData?.adultPrice || 0)) + (m.childCount * (mealData?.childPrice || 0))
+        }, 0)
+
     const eventDate = new Date(event.date)
     const now = new Date()
     const diffTime = eventDate - now
@@ -70,8 +77,27 @@ export default function EventToggleCard({ event, initiallyEnrolled, initialMealS
             flexDirection: 'column',
             gap: '1rem',
             marginBottom: '1rem',
-            opacity: isLocked ? 0.8 : 1
+            opacity: isLocked ? 0.8 : 1,
+            position: 'relative'
         }}>
+            {/* Total Price Badge */}
+            {totalPrice > 0 && (
+                <div style={{
+                    position: 'absolute',
+                    top: '1.25rem',
+                    right: '1.25rem',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    color: '#8B5CF6',
+                    padding: '0.4rem 0.8rem',
+                    borderRadius: '12px',
+                    fontWeight: 'bold',
+                    fontSize: '0.9rem',
+                    border: '1px solid rgba(139, 92, 246, 0.2)',
+                    zIndex: 2
+                }}>
+                    Total: {totalPrice.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
+                </div>
+            )}
             <div>
                 <h3 style={{ margin: '0 0 0.25rem 0', color: isEnrolled ? '#8B5CF6' : 'var(--text)', fontSize: '1.2rem' }}>
                     {event.title}
@@ -111,7 +137,21 @@ export default function EventToggleCard({ event, initiallyEnrolled, initialMealS
                             {meal.selected && (
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', paddingLeft: '1.5rem' }}>
                                     <div>
-                                        <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Adultos</label>
+                                        <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
+                                            Adultos
+                                            {event.meals.find(m => m.id === meal.mealId)?.adultPrice > 0 && (
+                                                <span style={{ 
+                                                    backgroundColor: 'rgba(139, 92, 246, 0.1)', 
+                                                    color: '#8B5CF6', 
+                                                    padding: '0.1rem 0.4rem', 
+                                                    borderRadius: '8px', 
+                                                    fontSize: '0.7rem',
+                                                    fontWeight: 'bold'
+                                                }}>
+                                                    {event.meals.find(m => m.id === meal.mealId)?.adultPrice.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
+                                                </span>
+                                            )}
+                                        </label>
                                         <input 
                                             type="number" 
                                             min="0" 
@@ -122,7 +162,21 @@ export default function EventToggleCard({ event, initiallyEnrolled, initialMealS
                                         />
                                     </div>
                                     <div>
-                                        <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'block' }}>Niños</label>
+                                        <label style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.25rem' }}>
+                                            Niños
+                                            {event.meals.find(m => m.id === meal.mealId)?.childPrice > 0 && (
+                                                <span style={{ 
+                                                    backgroundColor: 'rgba(34, 197, 94, 0.1)', 
+                                                    color: '#16a34a', 
+                                                    padding: '0.1rem 0.4rem', 
+                                                    borderRadius: '8px', 
+                                                    fontSize: '0.7rem',
+                                                    fontWeight: 'bold'
+                                                }}>
+                                                    {event.meals.find(m => m.id === meal.mealId)?.childPrice.toLocaleString('es-ES', { style: 'currency', currency: 'EUR' })}
+                                                </span>
+                                            )}
+                                        </label>
                                         <input 
                                             type="number" 
                                             min="0" 

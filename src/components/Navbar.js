@@ -8,7 +8,7 @@ export default async function Navbar() {
     if (!session || !session.user) return null
 
     const { role, isApproved } = session.user
-    const showMenu = isApproved === true
+    const showMenu = isApproved === true || role === "ADMIN" || role === "SUPER_ADMIN"
 
     return (
         <nav className="navbar">
