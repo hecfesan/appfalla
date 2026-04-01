@@ -1,11 +1,11 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { resetPasswordAction } from "./actions"
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
     const searchParams = useSearchParams()
     const token = searchParams.get("token")
 
@@ -91,5 +91,19 @@ export default function ResetPasswordPage() {
                 </p>
             </div>
         </main>
+    )
+}
+
+export default function ResetPasswordPage() {
+    return (
+        <Suspense fallback={
+            <main className="auth-container">
+                <div className="auth-card">
+                    <p>Cargando...</p>
+                </div>
+            </main>
+        }>
+            <ResetPasswordForm />
+        </Suspense>
     )
 }
