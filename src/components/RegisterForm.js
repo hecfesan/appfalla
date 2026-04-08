@@ -15,9 +15,9 @@ export default function RegisterForm() {
 
         const formData = new FormData(e.target)
         const data = Object.fromEntries(formData)
-        const { email, username, name, password } = data
+        const { username, name, password } = data
 
-        if (!email || !username || !name || !password) {
+        if (!username || !name || !password) {
             setError("Todos los campos son obligatorios")
             setLoading(false)
             return
@@ -27,7 +27,7 @@ export default function RegisterForm() {
             const res = await fetch("/api/auth/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ email, username, name, password }),
+                body: JSON.stringify({ username, name, password }),
             })
             const result = await res.json()
 
@@ -49,10 +49,6 @@ export default function RegisterForm() {
             <div className="form-group">
                 <label htmlFor="name">Nombre Completo</label>
                 <input id="name" name="name" type="text" required />
-            </div>
-            <div className="form-group">
-                <label htmlFor="email">Correo Electrónico</label>
-                <input id="email" name="email" type="email" required />
             </div>
             <div className="form-group">
                 <label htmlFor="username">Nombre de usuario</label>

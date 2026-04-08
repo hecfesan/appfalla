@@ -14,7 +14,6 @@ model User {
   id                 String              @id @default(cuid())
   numericId          Int?                @unique
   username           String              @unique
-  email              String?             @unique
   name               String
   password           String
   tokenBalance       Int                 @default(0)
@@ -28,14 +27,6 @@ model User {
   tokenAdjustments   TokenAdjustment[]
 }
 
-model PasswordResetToken {
-  id      String   @id @default(cuid())
-  email   String
-  token   String   @unique
-  expires DateTime
-
-  @@unique([email, token])
-}
 
 model Order {
   id            String   @id @default(cuid())

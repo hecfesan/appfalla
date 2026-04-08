@@ -52,7 +52,7 @@ export default async function AdminUsersPage() {
                             <div key={user.id} className="user-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.25rem', border: '1px solid #F59E0B', backgroundColor: 'rgba(245, 158, 11, 0.03)' }}>
                                 <div className="user-info">
                                     <div style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{user.name}</div>
-                                    <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>@{user.username} • {user.email}</div>
+                                    <div style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>@{user.username}</div>
                                     <div style={{ fontSize: '0.8rem', marginTop: '0.25rem' }}>Registrado el: {new Date(user.createdAt).toLocaleDateString()}</div>
                                 </div>
                                 <UserApprovalControls userId={user.id} />
@@ -69,7 +69,7 @@ export default async function AdminUsersPage() {
                         <div key={user.id} className="user-card" style={{ opacity: 0.8 }}>
                             <div className="user-info">
                                 <strong>{user.name}</strong> (@{user.username})
-                                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>ID: {user.numericId} • {user.email}</div>
+                                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>ID: {user.numericId}</div>
                             </div>
                             <div style={{ color: 'var(--success)', fontWeight: 'bold', fontSize: '0.9rem' }}>ACTIVO</div>
                         </div>
