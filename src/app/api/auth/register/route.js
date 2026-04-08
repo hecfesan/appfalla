@@ -17,21 +17,43 @@ export async function POST(req) {
         }
         const hashedPassword = await bcrypt.hash(password, 10)
 
-        const maxUser = await prisma.user.findFirst({
-            orderBy: { numericId: 'desc' },
-            select: { numericId: true }
-        })
-        const nextNumericId = maxUser?.numericId ? maxUser.numericId + 1 : 1
+        let user;
+        let success = false;
+        let attempts = 0;
+        const maxAttempts = 5;
 
-        const user = await prisma.user.create({
-            data: {
-                name,
-                username,
-                email,
-                password: hashedPassword,
-                numericId: nextNumericId
+        while (!success && attempts < maxAttempts) {
+            try {
+                const maxUser = await prisma.user.findFirst({
+                    orderBy: { numericId: 'desc' },
+                    select: { numericId: true }
+                })
+                const nextNumericId = maxUser?.numericId ? maxUser.numericId + 1 : 1
+
+                user = await prisma.user.create({
+                    data: {
+                        name,
+                        username,
+                        email,
+                        password: hashedPassword,
+                        numericId: nextNumericId
+                    }
+                })
+                success = true;
+            } catch (error) {
+                // Prisma error for unique constraint failed is P2002
+                if (error.code === 'P2002' && error.meta?.target?.includes('numericId')) {
+                    attempts++;
+                    if (attempts >= maxAttempts) {
+                        throw new Error(`No se ha podido asignar un ID numérico único después de ${maxAttempts} intentos. Por favor, inténtalo de nuevo.`);
+                    }
+                    // Wait a random time between 10ms and 150ms to minimize re-collisions
+                    await new Promise(resolve => setTimeout(resolve, Math.random() * 140 + 10));
+                    continue;
+                }
+                throw error;
             }
-        })
+        }
 
         // Send welcome email (non-blocking)
         sendWelcomeEmail(email, name, username).catch(console.error)
